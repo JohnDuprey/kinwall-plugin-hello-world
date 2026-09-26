@@ -79,7 +79,7 @@ A plugin runs in a **sandboxed frame with its own strict security policy**, on a
 - **Classic scripts only.** `<script type="module">` and `import()` don't work in the sandbox. Use plain `<script src>`, or bundle to a single classic script (an IIFE).
 - **No web workers.**
 - **No browser storage.** `localStorage`, `sessionStorage`, IndexedDB and cookies are unavailable, so use `Kinwall.save`.
-- **No dialogs, forms, pop-ups or navigation.** `alert()`, `confirm()` and `prompt()` do nothing, form submission and new windows are blocked, and links can't leave the page. Build these into your page instead.
+- **No dialogs, forms, pop-ups or navigation.** `alert()`, `confirm()` and `prompt()` do nothing, and form submission and new windows are blocked. **One page:** if the plugin's page loads another page (a link, `location`, even a reload of its own), Kinwall stops the plugin. Switch screens with JavaScript instead.
 - **No device access.** Camera, microphone, location, fullscreen and pointer lock aren't available.
 
 **Needs a tap first:**
@@ -89,11 +89,13 @@ A plugin runs in a **sandboxed frame with its own strict security policy**, on a
 - **Only who's playing, the theme, text size, motion preference and locale.** No calendar, chores, lists or photos.
 
 **Size:**
-- **The package:** 5 MB, 200 files, 2 MB per file.
+- **The package:** 5 MB as a zip. Unpacked: 10 MB, 200 files, 2 MB per file.
+- **Per family:** 20 plugins, 50 MB of plugin files in all.
 - **File types served:** `html js mjs css json txt svg png jpg jpeg gif webp mp3 ogg wav m4a woff woff2`. Anything else, such as READMEs or source maps, is skipped.
 
 **Saved data:**
-- **Size:** 100 values per person (and for the family), 16 KB of JSON each.
+- **Size:** 100 values per person (and for the family), 16 KB of JSON each, and 1 MB for everyone together.
+- **Rate:** up to 30 saves in 10 seconds. Save when something changes, not on a timer.
 - **Kept across updates.**
 - **Deleted when the family removes the plugin.**
 

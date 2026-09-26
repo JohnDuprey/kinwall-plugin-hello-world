@@ -8,7 +8,7 @@ This repo is a **Kinwall plugin**: a small web page shown full screen under **Ac
 2. **Everything is local.** No CDNs, remote fonts, analytics, ads or external images. Bundle what you need into the package. `data:` and `blob:` URLs are fine for images, media and fonts.
 3. **Classic scripts only.** Use `<script src="...">`, never `type="module"` or dynamic `import()`. If you use a bundler, output one classic IIFE script. No web workers.
 4. **No browser storage.** Use `Kinwall.load()` and `Kinwall.save()`, never `localStorage`, `sessionStorage`, IndexedDB or cookies.
-5. **No `alert`, `confirm`, `prompt`, forms that submit, `window.open`, or links that navigate away.** Show messages and choices in the page itself.
+5. **One page, no dialogs.** No `alert`, `confirm`, `prompt`, forms that submit, `window.open`, links, `location` changes or reloads: Kinwall stops a plugin whose frame loads a second page. Switch screens in JavaScript and show messages in the page itself.
 6. **Sound needs a tap.** Audio and `speechSynthesis` only work after a tap inside the page, so begin with a **Start** button. When speaking, cancel any current speech, wait about 150 ms, then speak, and keep a reference to the utterance.
 7. **Keep `kinwall.js` as is,** and load it before the plugin's own script.
 8. **Keep the `id` in `kinwall-plugin.json` unchanged.** Bump `version` for every release.
@@ -23,7 +23,7 @@ await Kinwall.save(key, jsonValue)          // per person; { shared: true } for 
 Kinwall.close()                             // back to Activities
 ```
 
-- **Limits:** keys are 1-64 characters, values are JSON up to 16 KB, and there are at most 100 keys per person.
+- **Limits:** keys are 1-64 characters, values are JSON up to 16 KB, at most 100 keys per person, 1 MB for the whole family, and 30 saves in 10 seconds.
 - **Failures:** saving can fail when offline. Catch the error and keep going.
 - **Colors:** style with the `--kw-bg`, `--kw-card`, `--kw-text`, `--kw-dim`, `--kw-accent`, `--kw-accent-ink` (text on the accent color), `--kw-border` and `--kw-font` CSS variables. Kinwall sets them to the family's theme, and `[data-theme="dark"]` is set in dark mode.
 
@@ -40,7 +40,7 @@ Kinwall.close()                             // back to Activities
 
 - **Plugin files:** `index.html`, `app.js`, `style.css`, plus any assets. The manifest is `kinwall-plugin.json`. See the table in `README.md`.
 - **Preview:** run `python3 -m http.server 8000` and open `http://localhost:8000/dev/`. It stands in for Kinwall: it has a member picker and a theme switch, saves to its own storage, and logs every message.
-- **Package:** `scripts/package.sh` builds `kinwall-plugin.zip`. The limits are 5 MB, 200 files and 2 MB per file. Only `html js mjs css json txt svg png jpg jpeg gif webp mp3 ogg wav m4a woff woff2` files are served.
+- **Package:** `scripts/package.sh` builds `kinwall-plugin.zip`. The limits are 5 MB zipped, and 10 MB, 200 files and 2 MB per file unpacked. Only `html js mjs css json txt svg png jpg jpeg gif webp mp3 ogg wav m4a woff woff2` files are served.
 - **Release:** publish a GitHub release tagged `v<version>`. `.github/workflows/release.yml` attaches the zip.
 
 ## Before you say it's done
