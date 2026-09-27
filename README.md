@@ -33,7 +33,8 @@ To make your own, use this repo as a template, rename it `kinwall-plugin-<your-i
    1. Push to GitHub and add the `kinwall-plugin` topic to the repo.
    2. Bump `version` in the manifest.
    3. Publish a release tagged `v<version>`. The workflow attaches `kinwall-plugin.zip` to it.
-   4. Families install it by pasting the repo's link into **Get more activities**, and **Update** fetches your newest release.
+   4. On a self-hosted Kinwall, families can install it by pasting the repo's link into **Get more activities**.
+5. **Get it reviewed.** Reviewed plugins are listed for every family, and they're the only ones kinwall.family can install. [Open an issue](https://github.com/JohnDuprey/kinwall/issues) with your repo's link. Each new version is reviewed too before families get it. See [Building activity plugins](https://github.com/JohnDuprey/kinwall/blob/main/docs/contributing/plugins.md).
 
 Kinwall only installs the **built package attached to the latest release**, never your source files. If your plugin has a build step (TypeScript, a bundler), run it in the workflow and package the output folder: `scripts/package.sh dist`.
 
