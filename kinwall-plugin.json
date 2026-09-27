@@ -9,5 +9,5 @@
   "categories": ["Examples"],
   "ages": { "min": 3 },
   "author": "Your name",
-  "homepage": "https://github.com/your-name/kinwall-plugin-hello-world"
+  "homepage": "https://github.com/JohnDuprey/kinwall-plugin-hello-world"
 }
