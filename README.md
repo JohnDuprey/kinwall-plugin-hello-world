@@ -43,6 +43,8 @@ Kinwall only installs the **built package attached to the latest release**, neve
 ```js
 const ctx = await Kinwall.ready()
 // ctx.member: { id, name, avatar, color } of whoever is playing, or null ("Just playing")
+// ctx.parent: true on a parent's device, false on wall screens and kids' devices (undefined on older Kinwall)
+// ctx.canSpeak: Kinwall.speak works here (undefined on older Kinwall)
 // ctx.theme: { bg, card, text, dim, accent, accentInk, border, font, dark }
 // ctx.textScale: 's' | 'm' | 'l' | 'xl'; ctx.reducedMotion: boolean; ctx.locale: e.g. 'en-US'
 
@@ -51,8 +53,13 @@ const ours = await Kinwall.load({ shared: true })    // the whole family's
 await Kinwall.save('progress', { level: 2 })         // any JSON value; per person
 await Kinwall.save('highScore', 900, { shared: true })
 await Kinwall.save('progress', null)                 // null deletes it
+await Kinwall.speak('friend', { rate: 0.8 })         // Kinwall says it; resolves when it's done
+Kinwall.stopSpeaking()
 Kinwall.close()                                      // back to Activities
 ```
+
+- **Grown-up settings:** show them only when `ctx.parent` is true, like editing a kid's word list. On an older Kinwall (`undefined`), put them behind a simple gate, such as a long press.
+- **Speech:** use the page's own `speechSynthesis` when it has one: it gives you the voice and timing. Android's WebView has none, so there call `Kinwall.speak()` when `ctx.canSpeak` is true, and Kinwall speaks for you. If neither works, say so on screen rather than leaving a silent game.
 
 The theme is also set as CSS variables on `<html>` (`--kw-bg`, `--kw-card`, `--kw-text`, `--kw-dim`, `--kw-accent`, `--kw-accent-ink` (text on the accent color), `--kw-border`, `--kw-font`), with `data-theme="light"` or `"dark"`. Use them, and your plugin will match every family's colors.
 
@@ -87,7 +94,7 @@ A plugin runs in a **sandboxed frame with its own strict security policy**, on a
 - **Sound and speech.** Browsers only play audio or `speechSynthesis` after someone taps inside your page, so start with a **Start** button.
 
 **What you can see:**
-- **Only who's playing, the theme, text size, motion preference and locale.** No calendar, chores, lists or photos.
+- **Only who's playing, whether it's a parent's device, the theme, text size, motion preference and locale.** No calendar, chores, lists or photos.
 
 **Size:**
 - **The package:** 5 MB as a zip. Unpacked: 10 MB, 200 files, 2 MB per file.
