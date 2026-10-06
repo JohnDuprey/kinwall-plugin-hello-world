@@ -42,6 +42,9 @@ Kinwall.onActions(callback)                  // something changed while open: ca
 - **Encouraging.** Vary the praise, never shame, no stressful timers, nothing to buy, no links out.
 - **Reduced motion.** When `ctx.reducedMotion` is true, skip animations. Keep a visible focus outline.
 - **Save progress as it happens,** and restore it on `ready()`.
+- **No zooming.** Keep `maximum-scale=1, user-scalable=no` in the viewport and `touch-action: pan-x pan-y` on `html, body`; follow `ctx.textScale` for text size.
+- **Cooldowns.** After a wrong answer, rest the answer controls ~1.5 s; a 🔊 replay rests until speech ends + ~1.5 s. Use `aria-disabled="true"` with a dimmed style (not `disabled`, which drops focus) and check it in handlers (`rest()`/`restWhile()` in `app.js`).
+- **Play time counts only with play.** Kinwall counts chore time in 15-second steps that need a real tap or key (forwarded by `kinwall.js`), a save or a speak. Keep `kinwall.js` current; call `Kinwall.close()` only when truly finished (it skips Kinwall's "Leave?" question).
 - **Fit any screen** from a 393 px phone to a wall display, and keep contrast readable in both themes.
 
 ## Files and workflow

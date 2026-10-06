@@ -104,6 +104,8 @@
         reply(msg, true); log(`done ${msg.item}`)
       } else if (msg.type === 'close') {
         log('close (Kinwall goes back to Activities)')
+      } else if (msg.type === 'active') {
+        log('active (a real tap or key: this 15-second step of a chore counts)')
       }
     })
     // Queued actions, like Kinwall's POST /api/plugins/{id}/actions/{name}. Kinwall also checks the

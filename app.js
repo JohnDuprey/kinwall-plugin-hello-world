@@ -46,6 +46,27 @@ el('tap').onclick = async () => {
   await Promise.all([Kinwall.save('taps', mine), Kinwall.save('taps', family, { shared: true })]).catch(() => {})
 }
 
+// Cooldowns: a 🔊 button rests until the words are said plus 1.5 s, and after a wrong answer the
+// answer buttons rest for about 1.5 s, so nobody spams sound or guesses at random. They stay visible
+// and focusable (aria-disabled, not disabled, so keyboard focus isn't lost); handlers check resting().
+// For a wrong answer: rest(answerButtons, 1500).
+const resting = b => b.getAttribute('aria-disabled') === 'true'
+function rest(buttons, ms) {
+  buttons.forEach(b => b.setAttribute('aria-disabled', 'true'))
+  setTimeout(() => buttons.forEach(b => b.removeAttribute('aria-disabled')), ms)
+}
+async function restWhile(buttons, promise, after = 1500) {
+  buttons.forEach(b => b.setAttribute('aria-disabled', 'true'))
+  await promise
+  rest(buttons, after)
+}
+
+el('say').onclick = () => {
+  const b = el('say')
+  if (resting(b)) return
+  restWhile([b], Kinwall.speak(el('hello').textContent)) // resolves once it's said; never rejects
+}
+
 el('reset').onclick = async () => {
   mine = 0
   render()

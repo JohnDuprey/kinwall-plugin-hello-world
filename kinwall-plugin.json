@@ -1,7 +1,7 @@
 {
   "id": "hello-world",
   "name": "Hello world",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A starter plugin: greets whoever is playing and counts their taps.",
   "entry": "index.html",
   "emoji": "👋",

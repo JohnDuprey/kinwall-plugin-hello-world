@@ -67,6 +67,8 @@ Kinwall.onActions(() => { /* call actions() again */ })
 - **Speech:** use the page's own `speechSynthesis` when it has one: it gives you the voice and timing. Android's WebView has none, so there call `Kinwall.speak()` when `ctx.canSpeak` is true, and Kinwall speaks for you. If neither works, say so on screen rather than leaving a silent game.
 
 - **Actions:** see [Actions](#actions).
+- **Play time:** a family can make a chore of your activity ("10 min of Spelling"). Kinwall counts it in 15-second steps, and a step counts only with play in it. `kinwall.js` passes real taps and key presses in your page to Kinwall for that (just "something happened", at most once every 3 seconds, never what or where); a `save()` or `speak()` counts too, `ready()` and `load()` don't. Keep `kinwall.js` up to date: with an older copy only the steps where you save or speak count.
+- **Leaving:** Kinwall asks "Leave …?" when someone taps its back button. `Kinwall.close()` leaves without asking, so call it when the activity is truly done.
 
 The theme is also set as CSS variables on `<html>` (`--kw-bg`, `--kw-card`, `--kw-text`, `--kw-dim`, `--kw-accent`, `--kw-accent-ink` (text on the accent color), `--kw-border`, `--kw-font`), with `data-theme="light"` or `"dark"`. Use them, and your plugin will match every family's colors.
 
@@ -148,6 +150,8 @@ A plugin runs in a **sandboxed frame with its own strict security policy**, on a
 - **Match the family.** Use the `--kw-*` colors, and check both light and dark in the preview.
 - **Respect reduced motion.** If `ctx.reducedMotion` is true, skip shaking and flying animations.
 - **Save often.** People walk away mid-game, so save progress as it happens.
+- **No zooming.** Keep `maximum-scale=1, user-scalable=no` in the viewport meta and `touch-action: pan-x pan-y` on `html, body` (both in this template; `kinwall.js` also stops Safari's pinch gesture), so a child can't zoom in and get lost. Size text from `ctx.textScale`, Kinwall's text size, instead.
+- **Slow down guessing.** After a wrong answer, rest the answer buttons for about 1.5 seconds with a gentle dimmed look, and keep a 🔊 replay button resting until the speech ends plus about 1.5 seconds. Use `aria-disabled="true"` rather than `disabled`, so keyboard focus stays put. `app.js` has `rest()` and `restWhile()` helpers for both.
 - **Kind by default.** Encourage, don't punish, with no timers that stress and no streak-shaming. Nothing to buy, no ads, no links out.
 
 ## Building with an AI assistant
