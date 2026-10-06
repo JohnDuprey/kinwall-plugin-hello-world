@@ -23,12 +23,16 @@ await Kinwall.save(key, jsonValue)          // per person; { shared: true } for 
 await Kinwall.speak(text, { rate, lang })   // Kinwall says it; resolves when done, never rejects
 Kinwall.stopSpeaking()
 Kinwall.close()                             // back to Activities
+const todo = await Kinwall.actions()         // waiting requests from other apps: [{ id, action, input, createdAt }]; { shared: true } for the family's
+await Kinwall.done(id)                       // applied or dropped: Kinwall deletes it
+Kinwall.onActions(callback)                  // something changed while open: call actions() again
 ```
 
 - **Parents:** `ctx.parent` is true on a parent's device, false on wall screens and kids' devices, and undefined on older Kinwall. Show grown-up settings only when it's true (or behind a simple gate when it's undefined).
 - **Speech:** use the page's own `speechSynthesis` when it exists; otherwise use `Kinwall.speak` when `ctx.canSpeak` (Android's WebView has no `speechSynthesis`); otherwise say the activity needs a device that can talk.
 - **Limits:** keys are 1-64 characters, values are JSON up to 16 KB, at most 100 keys per person, 1 MB for the whole family, and 30 saves in 10 seconds.
 - **Failures:** saving can fail when offline. Catch the error and keep going.
+- **Actions:** declare what other apps may ask in the manifest's `actions` (see README "Actions"). Apply them after `ready()` and `load()`, validate every input yourself, make applying idempotent (set or merge, never blindly append), and call `done(id)` after saving, also for input you drop.
 - **Colors:** style with the `--kw-bg`, `--kw-card`, `--kw-text`, `--kw-dim`, `--kw-accent`, `--kw-accent-ink` (text on the accent color), `--kw-border` and `--kw-font` CSS variables. Kinwall sets them to the family's theme, and `[data-theme="dark"]` is set in dark mode.
 
 ## Design
@@ -54,3 +58,4 @@ Kinwall.close()                             // back to Activities
 - **Sound:** it starts from a tap if it uses sound or speech.
 - **Save and restore:** saved progress comes back after reloading the plugin.
 - **Manifest:** the version is bumped and the `id` is unchanged.
+- **Actions:** each declared action works from `dev/`'s **Send an action** row, applying twice changes nothing more, and bad input is dropped.

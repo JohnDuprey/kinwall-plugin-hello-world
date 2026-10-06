@@ -18,7 +18,25 @@ Kinwall.ready().then(async ctx => {
   mine = saved.taps ?? 0
   family = shared.taps ?? 0
   render()
+  await applyActions()
+  Kinwall.onActions(applyActions) // one arrived while we're open
 })
+
+// Actions: other apps (an AI assistant, Home Assistant) can ask for the ones kinwall-plugin.json
+// declares. Check the input (it came from outside), apply it so that twice is the same as once,
+// then say done; anything we can't use is marked done too, so it doesn't come back.
+async function applyActions() {
+  for (const a of await Kinwall.actions()) {
+    try {
+      if (a.action === 'setTaps' && Number.isInteger(a.input.taps) && a.input.taps >= 0) {
+        mine = a.input.taps
+        render()
+        await Kinwall.save('taps', mine)
+      }
+      await Kinwall.done(a.id)
+    } catch { /* offline: it's still waiting next time */ }
+  }
+}
 
 el('tap').onclick = async () => {
   mine++

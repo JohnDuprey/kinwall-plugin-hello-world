@@ -56,10 +56,17 @@ await Kinwall.save('progress', null)                 // null deletes it
 await Kinwall.speak('friend', { rate: 0.8 })         // Kinwall says it; resolves when it's done
 Kinwall.stopSpeaking()
 Kinwall.close()                                      // back to Activities
+
+const todo = await Kinwall.actions()                 // requests other apps sent for this person: [{ id, action, input, createdAt }]
+await Kinwall.actions({ shared: true })              // the family's
+await Kinwall.done(todo[0].id)                       // applied (or dropped): Kinwall deletes it
+Kinwall.onActions(() => { /* call actions() again */ })
 ```
 
 - **Grown-up settings:** show them only when `ctx.parent` is true, like editing a kid's word list. On an older Kinwall (`undefined`), put them behind a simple gate, such as a long press.
 - **Speech:** use the page's own `speechSynthesis` when it has one: it gives you the voice and timing. Android's WebView has none, so there call `Kinwall.speak()` when `ctx.canSpeak` is true, and Kinwall speaks for you. If neither works, say so on screen rather than leaving a silent game.
+
+- **Actions:** see [Actions](#actions).
 
 The theme is also set as CSS variables on `<html>` (`--kw-bg`, `--kw-card`, `--kw-text`, `--kw-dim`, `--kw-accent`, `--kw-accent-ink` (text on the accent color), `--kw-border`, `--kw-font`), with `data-theme="light"` or `"dark"`. Use them, and your plugin will match every family's colors.
 
@@ -76,6 +83,31 @@ The theme is also set as CSS variables on `<html>` (`--kw-bg`, `--kw-card`, `--k
 | `categories` | | Up to 8, e.g. `["Learn to read"]`, `["Math"]`, `["Games"]`. |
 | `ages` | | `{ "min": 4, "max": 7 }`; `max` is optional. |
 | `author`, `homepage` | | Shown to the family admin. |
+| `actions` | | What other apps can ask the plugin to do. See [Actions](#actions). |
+
+## Actions
+
+Your saved data's format is your own, and nothing else writes it. Actions let other apps ask your plugin to change it anyway: a parent tells an AI assistant "set Maya's taps to 5", or a Home Assistant or n8n automation sends one. You declare what you accept, Kinwall queues each request for one person, and your plugin applies it the next time that person opens it.
+
+```json
+"actions": {
+  "setTaps": {
+    "description": "Set this person's tap count.",
+    "input": {
+      "properties": { "taps": { "type": "number", "description": "The new count, 0 or more" } },
+      "required": ["taps"]
+    }
+  }
+}
+```
+
+- **Declaring:** at most 10 actions. Names start with a lowercase letter, then letters and digits (`setTaps`); a `description` is required. The `input` has `properties`, each with a `type` (`string`, `number`, `boolean`, `array` or `object`) and optionally a `description`, `items: { "type": … }` for arrays, `maxLength` and `maxItems`, and a `required` list. Assistants read the descriptions, so say what each action and field means.
+- **What Kinwall checks:** only full-access callers (a parent's device, a full-access key or connected app) can send one, never a wall screen or a kid's device. The input must match the shape (required fields present, no unknown fields, types match, strings at most 1,000 characters unless `maxLength` says otherwise) and be at most 16 KB; at most 50 wait per person.
+- **Applying:** after `ready()` and `load()`, call `Kinwall.actions()`, apply each, then `Kinwall.done(id)`. `Kinwall.onActions(callback)` runs when something changed while the plugin is open; call `actions()` again then. `app.js` shows the pattern.
+- **Check the input yourself.** It came from outside. Mark what you can't use as done, so it doesn't come back.
+- **Be idempotent.** If saving works but `done` fails (offline), the action comes back next time: applying it again must change nothing more. Set or merge; don't append.
+- **Preview:** the `dev/` page's **Send an action** row queues one for whoever is playing.
+- **Sending one** (for a family's integrations): `POST /api/plugins/{id}/actions/{name}` with `{ "member": "<member id>", "input": { … } }` in Kinwall's REST API, or the MCP tools `list_activity_actions` and `run_activity_action`.
 
 ## Limits
 
